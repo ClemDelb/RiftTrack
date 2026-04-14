@@ -1,50 +1,51 @@
-# Welcome to your Expo app 👋
+# RiftTrack
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**RiftTrack** est une application mobile pour suivre vos performances sur **League of Legends**. Profil, historique des
+parties, statistiques par champion, et notes de patch — tout au même endroit.
 
-## Get started
+---
 
-1. Install dependencies
+## Aperçu
 
-   ```bash
-   npm install
-   ```
+<table>
+  <tr>
+    <td align="center"><img src="assets/Screenshots/android/smartphone/profile_screen.png" width="200"/><br/><sub>Profil</sub></td>
+    <td align="center"><img src="assets/Screenshots/android/smartphone/champions_screen.png" width="200"/><br/><sub>Champions</sub></td>
+    <td align="center"><img src="assets/Screenshots/android/smartphone/history_screen.png" width="200"/><br/><sub>Historique</sub></td>
+    <td align="center"><img src="assets/Screenshots/android/smartphone/history_screen2.png" width="200"/><br/><sub>Détail de partie</sub></td>
+    <td align="center"><img src="assets/Screenshots/android/smartphone/patch_screen.png" width="200"/><br/><sub>Patch Notes</sub></td>
+  </tr>
+</table>
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## Fonctionnalités
 
-In the output, you'll find options to open the app in a
+- **Profil** — Rang, LP, winrate et maîtrise des champions en un coup d'oeil
+- **Champions** — Statistiques détaillées par champion (KDA, vision, dégâts, winrate) filtrées par mode de jeu
+- **Historique** — Liste de vos dernières parties avec résultat, champion joué et stats clés
+- **Détail de partie** — Tableau complet avec les deux équipes, items, scores et durée
+- **Patch Notes** — Notes de mise à jour officielles de League of Legends intégrées directement dans l'app
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Stack technique
 
-## Get a fresh project
+- [Expo](https://expo.dev) / React Native
+- Expo Router (file-based routing)
+- TypeScript
 
-When you're ready, run:
+---
+
+## Lancer le projet
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Ouvre ensuite l'app dans :
 
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- Un émulateur Android / iOS
+- [Expo Go](https://expo.dev/go) sur ton téléphone
+- Un build de développement
