@@ -1,24 +1,59 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { DarkTheme, ThemeProvider } from '@react-navigation/native'
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { useFonts } from 'expo-font'
+import {
+    Cinzel_700Bold,
+    Cinzel_900Black,
+} from '@expo-google-fonts/cinzel'
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { SummonerProvider } from '@/contexts/summoner'
+import { HomeConfigProvider } from '@/contexts/home-config'
+import { LoL } from '@/constants/theme'
 
 export const unstable_settings = {
   anchor: '(tabs)',
 };
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+    useFonts({ Cinzel_700Bold, Cinzel_900Black })
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
+      // Force dark theme — RiftTrack uses the LoL dark palette exclusively
+      <ThemeProvider value={DarkTheme}>
+          <SummonerProvider>
+              <HomeConfigProvider>
+                  <Stack>
+                      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+                      <Stack.Screen
+                          name="settings"
+                          options={{
+                              title: 'Réglages',
+                              headerStyle: { backgroundColor: LoL.bg },
+                              headerTintColor: LoL.gold,
+                              headerTitleStyle: {
+                                  color: LoL.goldLight,
+                                  fontWeight: '700',
+                              },
+                              headerShadowVisible: false,
+                          }}
+                      />
+                      <Stack.Screen
+                          name="match-detail"
+                          options={{
+                              title: 'Détail de la partie',
+                              headerStyle: { backgroundColor: LoL.bg },
+                              headerTintColor: LoL.gold,
+                              headerTitleStyle: { color: LoL.goldLight, fontWeight: '700' },
+                              headerShadowVisible: false,
+                          }}
+                      />
+                      <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+                  </Stack>
+                  <StatusBar style="light" />
+              </HomeConfigProvider>
+          </SummonerProvider>
     </ThemeProvider>
   );
 }
