@@ -41,8 +41,11 @@ app-example
 
 # generated native folders
 /ios
-/android
 /.idea/
 /.vscode/
 /.claude/
 /.ai/
+/keystore/
+keystore/
+android/gradle.properties
+android/local.properties

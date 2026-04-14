@@ -14,7 +14,8 @@
     "android": {
       "icon": "./assets/images/icon.png",
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.RiftTrack"
     },
     "web": {
       "output": "static",
