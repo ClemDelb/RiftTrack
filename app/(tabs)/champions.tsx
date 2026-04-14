@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LoL, FontSize, Spacing, Radius } from '@/constants/theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useSummoner } from '@/contexts/summoner';
+import { useRefreshGuard } from '@/hooks/use-refresh-guard'
 import {
   getMatchHistory, getMatch, getTopMasteriesAll,
   MasteryDto,
@@ -74,6 +75,7 @@ async function fetchBatched<T>(
 export default function ChampionsScreen() {
   const insets = useSafeAreaInsets();
   const { storedConfig } = useSummoner();
+  const guard = useRefreshGuard('champions')
 
   const [queue,      setQueue]      = useState<QueueMode>('solo');
   const [stats,      setStats]      = useState<ChampionStat[]>([]);
@@ -184,7 +186,11 @@ export default function ChampionsScreen() {
   if (!storedConfig) {
     return (
       <View style={[styles.centered, { paddingTop: insets.top }]}>
+        <IconSymbol name="person.fill" size={56} color={LoL.goldDark} />
         <Text style={styles.emptyTitle}>Aucun compte configuré</Text>
+        <Text style={styles.emptySubtitle}>
+          Renseigne ton Riot ID pour voir tes statistiques
+        </Text>
         <TouchableOpacity style={styles.btn} onPress={() => router.push('/settings')}>
           <Text style={styles.btnLabel}>CONFIGURER MON COMPTE</Text>
         </TouchableOpacity>
@@ -252,7 +258,9 @@ export default function ChampionsScreen() {
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={() => fetchStats(queue, true)}
+              onRefresh={() => {
+                if (guard()) fetchStats(queue, true)
+              }}
               tintColor={LoL.gold}
               colors={[LoL.gold]}
             />
@@ -431,19 +439,21 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: LoL.bgSurface },
   centered: {
     flex: 1,
+    backgroundColor: LoL.bgSurface,
     alignItems: 'center',
     justifyContent: 'center',
     padding: Spacing.xl,
     gap: Spacing.md,
   },
   loadingText: { color: LoL.textSecondary, fontSize: FontSize.sm, marginTop: Spacing.sm },
-  emptyTitle: { fontSize: FontSize.xl, fontWeight: '700', color: LoL.goldLight },
-  emptySubtitle: { fontSize: FontSize.sm, color: LoL.textSecondary, textAlign: 'center' },
+  emptyTitle: { fontSize: FontSize.xl, fontWeight: '700', color: LoL.goldLight, textAlign: 'center' },
+  emptySubtitle: { fontSize: FontSize.sm, color: LoL.textSecondary, textAlign: 'center', lineHeight: 20 },
   btn: {
     backgroundColor: LoL.gold,
     borderRadius: Radius.sm,
     paddingVertical: 12,
     paddingHorizontal: Spacing.xl,
+    marginTop: Spacing.sm,
   },
   btnLabel: { color: LoL.bg, fontSize: FontSize.sm, fontWeight: '800', letterSpacing: 1.5 },
 

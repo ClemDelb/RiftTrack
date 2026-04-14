@@ -10,6 +10,7 @@ import {
 
 import { SummonerProvider } from '@/contexts/summoner'
 import { HomeConfigProvider } from '@/contexts/home-config'
+import { ToastProvider } from '@/components/toast'
 import { LoL } from '@/constants/theme'
 
 export const unstable_settings = {
@@ -24,6 +25,7 @@ export default function RootLayout() {
       <ThemeProvider value={DarkTheme}>
           <SummonerProvider>
               <HomeConfigProvider>
+                  <ToastProvider>
                   <Stack>
                       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                       <Stack.Screen
@@ -49,9 +51,10 @@ export default function RootLayout() {
                               headerShadowVisible: false,
                           }}
                       />
-                      <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+
                   </Stack>
                   <StatusBar style="light" />
+                  </ToastProvider>
               </HomeConfigProvider>
           </SummonerProvider>
     </ThemeProvider>

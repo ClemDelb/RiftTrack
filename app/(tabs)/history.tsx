@@ -14,7 +14,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { setCurrentMatch } from '@/services/match-store';
 
 import { LoL, FontSize, Spacing, Radius } from '@/constants/theme';
+import { IconSymbol } from '@/components/ui/icon-symbol'
 import { useSummoner } from '@/contexts/summoner';
+import { useRefreshGuard } from '@/hooks/use-refresh-guard'
 import { getMatchHistory, getMatch, MatchDto, ParticipantDto } from '@/services/riot-api';
 import { DDragon, getLatestVersion } from '@/services/ddragon';
 
@@ -109,6 +111,7 @@ type MatchEntry = {
 export default function HistoryScreen() {
   const insets = useSafeAreaInsets();
   const { storedConfig } = useSummoner();
+    const guard = useRefreshGuard('history')
 
   const [entries,    setEntries]    = useState<MatchEntry[]>([]);
   const [version,    setVersion]    = useState('');
@@ -172,9 +175,10 @@ export default function HistoryScreen() {
   if (!storedConfig) {
     return (
       <View style={[styles.centered, { paddingTop: insets.top }]}>
+          <IconSymbol name="person.fill" size={56} color={LoL.goldDark} />
         <Text style={styles.emptyTitle}>Aucun compte configuré</Text>
         <Text style={styles.emptySubtitle}>
-          Configure ton Riot ID pour voir l'historique
+            Renseigne ton Riot ID pour voir tes statistiques
         </Text>
         <TouchableOpacity style={styles.btn} onPress={() => router.push('/settings')}>
           <Text style={styles.btnLabel}>CONFIGURER MON COMPTE</Text>
@@ -233,7 +237,9 @@ export default function HistoryScreen() {
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
-          onRefresh={() => fetchHistory(true)}
+          onRefresh={() => {
+              if (guard()) fetchHistory(true)
+          }}
           tintColor={LoL.gold}
           colors={[LoL.gold]}
         />

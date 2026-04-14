@@ -17,6 +17,7 @@ import { IconSymbol } from '@/components/ui/icon-symbol'
 import { useSummoner, SummonerProfile } from '@/contexts/summoner'
 import { useHomeConfig } from '@/contexts/home-config'
 import { DDragon, formatMastery } from '@/services/ddragon'
+import { useRefreshGuard } from '@/hooks/use-refresh-guard'
 
 // ── Rank colors ──────────────────────────────────────────────────────────────
 
@@ -39,6 +40,11 @@ export default function ProfilScreen() {
     const insets = useSafeAreaInsets()
     const { profile, profileLoading, profileError, refreshProfile } = useSummoner()
     const { homeConfig } = useHomeConfig()
+    const guard = useRefreshGuard('home')
+
+    const handleRefresh = React.useCallback(() => {
+        if (guard()) refreshProfile()
+    }, [guard, refreshProfile])
 
     if (profileLoading && !profile) {
         return <LoadingState insetTop={insets.top} />
@@ -53,7 +59,7 @@ export default function ProfilScreen() {
             profile={profile}
             insetTop={insets.top}
             refreshing={profileLoading}
-            onRefresh={refreshProfile}
+            onRefresh={handleRefresh}
             homeConfig={homeConfig}
         />
     )
@@ -76,7 +82,6 @@ function LoadingState({ insetTop }: { insetTop: number }) {
 function EmptyState({ insetTop, error }: { insetTop: number; error: string | null }) {
     return (
         <View style={[styles.centeredScreen, { paddingTop: insetTop }]}>
-            <SettingsBtn absolute={false} />
             <IconSymbol name="person.fill" size={56} color={LoL.goldDark} />
             <Text style={styles.emptyTitle}>
                 {error ? 'Erreur de chargement' : 'Aucun compte configuré'}
