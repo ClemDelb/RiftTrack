@@ -368,7 +368,7 @@ function ChampionCard({ stat: s, rank }: { stat: ChampionStat; rank: number }) {
         </View>
 
         {/* ── Stats grid (collapsible avec animation) ──────────────────── */}
-        <Collapsible collapsed={!expanded} align="top">
+        <Collapsible collapsed={!expanded} align="top" style={{ gap: 8 }}>
           <View style={styles.statsGrid}>
             <StatCol label="KDA" value={kda} sub={`${avgKills} / ${avgDeaths} / ${avgAssists}`} highlight />
             <View style={styles.gridDivider} />

@@ -158,13 +158,13 @@ function ProfileView({
                     <View style={[styles.rankPill, { borderColor: rankColor }]}>
                         {soloQueue && <View style={[styles.rankDot, { backgroundColor: rankColor }]} />}
                         <Text style={[styles.rankTier, { color: rankColor }]}>
-                            {soloQueue?.tier ?? 'NON CLASSÉ'}
+                            {soloQueue?.tier ?? 'NON CLASSÉ'} {soloQueue?.rank}
                         </Text>
                         {soloQueue && (
                             <>
                                 <Text style={styles.rankSep}>·</Text>
                                 <Text style={[styles.rankDetails, { color: rankColor }]}>
-                                    {soloQueue.rank} {soloQueue.lp} LP
+                                    {soloQueue.lp} LP
                                 </Text>
                             </>
                         )}
