@@ -7,8 +7,7 @@
  *   - app.json            → expo.version
  *   - android/app/build.gradle → versionName + versionCode
  *
- * versionCode is derived from semver: major*10000 + minor*100 + patch
- * e.g. 1.2.3 → 10203
+ * versionCode is auto-incremented by 1 from the current value in build.gradle
  */
 
 const fs = require('fs')
@@ -30,10 +29,7 @@ if (!semver) {
     process.exit(1)
 }
 
-const [, major, minor, patch] = semver.map(Number)
-const versionCode = major * 10000 + minor * 100 + patch
-
-console.log(`\nBumping version → ${version} (versionCode: ${versionCode})\n`)
+console.log(`\nBumping version → ${version}\n`)
 
 const root = path.resolve(__dirname, '..')
 
@@ -60,8 +56,9 @@ console.log(`  app.json           ${prevAppJson} → ${version}`)
 const gradlePath = path.join(root, 'android', 'app', 'build.gradle')
 let gradle = fs.readFileSync(gradlePath, 'utf8')
 
-const prevVersionCode = (gradle.match(/versionCode\s+(\d+)/) || [])[1]
+const prevVersionCode = Number((gradle.match(/versionCode\s+(\d+)/) || [])[1])
 const prevVersionName = (gradle.match(/versionName\s+"([^"]+)"/) || [])[1]
+const versionCode = prevVersionCode + 1
 
 gradle = gradle.replace(/versionCode\s+\d+/, `versionCode ${versionCode}`)
 gradle = gradle.replace(/versionName\s+"[^"]+"/, `versionName "${version}"`)
