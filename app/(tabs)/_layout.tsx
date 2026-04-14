@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { View, StyleSheet } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -13,6 +14,7 @@ function TabBarBackground() {
 
 export default function TabLayout() {
     const insets = useSafeAreaInsets()
+    const { t } = useTranslation()
 
   return (
     <Tabs
@@ -32,7 +34,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-            title: 'Profil',
+            title: t('tabs.profile'),
             tabBarIcon: ({ color, focused }) => (
                 <IconSymbol size={focused ? 26 : 24} name="person.fill" color={color} />
             ),
@@ -41,7 +43,7 @@ export default function TabLayout() {
         <Tabs.Screen
             name="champions"
             options={{
-                title: 'Champions',
+                title: t('tabs.champions'),
                 tabBarIcon: ({ color, focused }) => (
                     <IconSymbol size={focused ? 26 : 24} name="shield.fill" color={color} />
                 ),
@@ -50,7 +52,7 @@ export default function TabLayout() {
         <Tabs.Screen
             name="history"
             options={{
-                title: 'Historique',
+                title: t('tabs.history'),
                 tabBarIcon: ({ color, focused }) => (
                     <IconSymbol size={focused ? 26 : 24} name="clock.fill" color={color} />
                 ),
@@ -59,7 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
           name="patch"
         options={{
-            title: 'Patch',
+            title: t('tabs.patch'),
             tabBarIcon: ({ color, focused }) => (
                 <IconSymbol size={focused ? 26 : 24} name="scroll.fill" color={color} />
             ),

@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next'
 
 import { LoL, FontSize, Spacing, Radius } from '@/constants/theme';
 import { ParticipantDto } from '@/services/riot-api';
@@ -46,6 +47,7 @@ const POSITION_LABELS: Record<string, string> = {
 
 export default function MatchDetailScreen() {
   const insets = useSafeAreaInsets();
+    const { t } = useTranslation()
   const { match, puuid } = getCurrentMatch();
 
   const { team100, team200, maxDmg, myChamp, win } = useMemo(() => {
@@ -88,20 +90,20 @@ export default function MatchDetailScreen() {
         {/* ── Match header ────────────────────────────────────────────────── */}
         <View style={[styles.matchHeader, { paddingTop: insets.top + 12 }]}>
           <Text style={styles.matchQueue}>
-            {QUEUE_LABELS[match.info.queueId] ?? 'Partie'}
+              {QUEUE_LABELS[match.info.queueId] ?? t('matchDetail.defaultQueue')}
           </Text>
           <Text style={styles.matchDuration}>
             {formatDuration(match.info.gameDuration)}
           </Text>
           <View style={[styles.matchResult, { backgroundColor: win ? LoL.win : LoL.loss }]}>
-            <Text style={styles.matchResultText}>{win ? 'VICTOIRE' : 'DÉFAITE'}</Text>
+              <Text style={styles.matchResultText}>{win ? t('common.win') : t('common.loss')}</Text>
           </View>
         </View>
 
         <View style={styles.body}>
           {/* ── Team 100 ──────────────────────────────────────────────────── */}
           <TeamSection
-            label="ÉQUIPE BLEUE"
+              label={t('matchDetail.blueTeam')}
             win={team100Win}
             color={LoL.hextech}
             participants={team100}
@@ -112,7 +114,7 @@ export default function MatchDetailScreen() {
 
           {/* ── Team 200 ──────────────────────────────────────────────────── */}
           <TeamSection
-            label="ÉQUIPE ROUGE"
+              label={t('matchDetail.redTeam')}
             win={!team100Win}
             color={LoL.loss}
             participants={team200}
@@ -139,13 +141,14 @@ function TeamSection({
   maxDmg: number;
   gameDuration: number;
 }) {
+    const { t } = useTranslation()
   return (
     <View style={styles.teamSection}>
       {/* Team header */}
       <View style={[styles.teamHeader, { borderLeftColor: color }]}>
         <Text style={[styles.teamLabel, { color }]}>{label}</Text>
         <View style={[styles.teamResultBadge, { backgroundColor: win ? LoL.win : LoL.loss }]}>
-          <Text style={styles.teamResultText}>{win ? 'VICTOIRE' : 'DÉFAITE'}</Text>
+            <Text style={styles.teamResultText}>{win ? t('common.win') : t('common.loss')}</Text>
         </View>
       </View>
 

@@ -1,3 +1,5 @@
+import i18n from '@/i18n'
+
 const API_KEY = process.env.EXPO_PUBLIC_RIOT_API_KEY ?? ''
 
 // Maps platform (server) → cluster (regional routing)
@@ -72,13 +74,13 @@ async function riotGet<T>(url: string): Promise<T> {
             console.log(mess)
             throw new Error(mess)
         }
-        if (res.status === 404) throw new Error('Invocateur introuvable')
+        if (res.status === 404) throw new Error(i18n.t('api.summonerNotFound'))
         if (res.status === 429) {
             const retryAfter = Number(res.headers.get('Retry-After') ?? 1) * 1_000 + 200
             await sleep(retryAfter)
             return riotGet<T>(url)
         }
-        throw new Error(msg ?? `Erreur ${res.status}`)
+        throw new Error(msg ?? i18n.t('api.error', { status: res.status }))
     }
     return res.json() as Promise<T>
 }

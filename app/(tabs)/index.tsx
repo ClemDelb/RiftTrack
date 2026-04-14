@@ -11,6 +11,7 @@ import {
 import { Image } from 'expo-image'
 import { router } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useTranslation } from 'react-i18next'
 
 import { LoL, FontSize, Spacing, Radius } from '@/constants/theme'
 import { IconSymbol } from '@/components/ui/icon-symbol'
@@ -68,11 +69,12 @@ export default function ProfilScreen() {
 // ── Loading state ─────────────────────────────────────────────────────────────
 
 function LoadingState({ insetTop }: { insetTop: number }) {
+    const { t } = useTranslation()
     return (
         <View style={[styles.centeredScreen, { paddingTop: insetTop }]}>
             <SettingsBtn absolute={false} />
             <ActivityIndicator color={LoL.gold} size="large" />
-            <Text style={styles.loadingText}>Chargement du profil…</Text>
+            <Text style={styles.loadingText}>{t('profile.loading')}</Text>
         </View>
     )
 }
@@ -80,17 +82,18 @@ function LoadingState({ insetTop }: { insetTop: number }) {
 // ── Empty / error state ───────────────────────────────────────────────────────
 
 function EmptyState({ insetTop, error }: { insetTop: number; error: string | null }) {
+    const { t } = useTranslation()
     return (
         <View style={[styles.centeredScreen, { paddingTop: insetTop }]}>
             <IconSymbol name="person.fill" size={56} color={LoL.goldDark} />
             <Text style={styles.emptyTitle}>
-                {error ? 'Erreur de chargement' : 'Aucun compte configuré'}
+                {error ? t('profile.errorTitle') : t('common.noAccount.title')}
             </Text>
             <Text style={styles.emptySubtitle}>
-                {error ?? 'Renseigne ton Riot ID pour voir tes statistiques'}
+                {error ?? t('common.noAccount.subtitle')}
             </Text>
             <TouchableOpacity style={styles.btnConfig} onPress={() => router.push('/settings')}>
-                <Text style={styles.btnConfigLabel}>CONFIGURER MON COMPTE</Text>
+                <Text style={styles.btnConfigLabel}>{t('common.noAccount.cta')}</Text>
             </TouchableOpacity>
         </View>
     )
@@ -124,6 +127,7 @@ function ProfileView({
     onRefresh: () => void;
     homeConfig: import('@/contexts/home-config').HomeConfig;
 }) {
+    const { t } = useTranslation()
     const { soloQueue, flexQueue, topChampions, recentPerf } = profile
     const rankColor = soloQueue ? (RANK_COLORS[soloQueue.tier] ?? LoL.gold) : LoL.textMuted
     const kdaRatio = recentPerf
@@ -163,7 +167,7 @@ function ProfileView({
                     <View style={[styles.rankPill, { borderColor: rankColor }]}>
                         {soloQueue && <View style={[styles.rankDot, { backgroundColor: rankColor }]} />}
                         <Text style={[styles.rankTier, { color: rankColor }]}>
-                            {soloQueue?.tier ?? 'NON CLASSÉ'} {soloQueue?.rank}
+                            {soloQueue?.tier ?? t('profile.unranked')} {soloQueue?.rank}
                         </Text>
                         {soloQueue && (
                             <>
@@ -177,10 +181,10 @@ function ProfileView({
 
                     <Text style={styles.summonerName}>{profile.gameName}</Text>
                     <Text style={styles.summonerMeta}>
-                        #{profile.tagLine} · Niveau {profile.level}
+                        {t('profile.meta', { tagLine: profile.tagLine, level: profile.level })}
                     </Text>
                     <Text style={styles.heroChampLabel}>
-                        Champion le plus maîtrisé — {topChampions[0]?.name ?? '—'}
+                        {t('profile.topChamp', { name: topChampions[0]?.name ?? '—' })}
                     </Text>
                 </View>
             </View>
@@ -191,11 +195,11 @@ function ProfileView({
                 {/* Solo Queue */}
                 {homeConfig.showSoloQueue && (
                     <>
-                        <SectionHeader label="SOLO QUEUE" />
+                        <SectionHeader label={t('profile.soloQueue')} />
                         {soloQueue
                             ? <QueueCard queue={soloQueue} />
                             : <View style={[styles.card, styles.cardEmpty]}>
-                                <Text style={styles.emptyCardText}>Non classé en Solo/Duo</Text>
+                                <Text style={styles.emptyCardText}>{t('profile.noSolo')}</Text>
                             </View>
                         }
                     </>
@@ -204,11 +208,11 @@ function ProfileView({
                 {/* Flex Queue */}
                 {homeConfig.showFlexQueue && (
                     <>
-                        <SectionHeader label="FLEX QUEUE" />
+                        <SectionHeader label={t('profile.flexQueue')} />
                         {flexQueue
                             ? <QueueCard queue={flexQueue} />
                             : <View style={[styles.card, styles.cardEmpty]}>
-                                <Text style={styles.emptyCardText}>Non classé en Flex</Text>
+                                <Text style={styles.emptyCardText}>{t('profile.noFlex')}</Text>
                             </View>
                         }
                     </>
@@ -217,7 +221,7 @@ function ProfileView({
                 {/* Champions */}
                 {homeConfig.showMasteries && topChampions.length > 0 && (
                     <>
-                        <SectionHeader label="MAÎTRISE DES CHAMPIONS" />
+                        <SectionHeader label={t('profile.masteries')} />
                         <View style={styles.card}>
                             {topChampions.map((champ, i) => (
                                 <React.Fragment key={champ.id}>
@@ -230,11 +234,12 @@ function ProfileView({
                                         />
                                         <View style={styles.champMid}>
                                             <Text style={styles.champName}>{champ.name}</Text>
-                                            <Text style={styles.champSub}>Niveau de maîtrise {champ.masteryLevel}</Text>
+                                            <Text
+                                                style={styles.champSub}>{t('profile.masteryLevel', { level: champ.masteryLevel })}</Text>
                                         </View>
                                         <View style={styles.champRight}>
                                             <Text style={styles.champPts}>{formatMastery(champ.masteryPoints)}</Text>
-                                            <Text style={styles.champGames}>points</Text>
+                                            <Text style={styles.champGames}>{t('profile.masteryPoints')}</Text>
                                         </View>
                                     </View>
                                     {i < topChampions.length - 1 && <View style={styles.rowDivider} />}
@@ -248,27 +253,28 @@ function ProfileView({
                 {homeConfig.showRecentPerf && (
                     <>
                         <SectionHeader
-                            label={recentPerf ? `PERFORMANCE RÉCENTE · ${recentPerf.games} PARTIES` : 'PERFORMANCE RÉCENTE'}
+                            label={recentPerf ? t('profile.recentPerf', { count: recentPerf.games }) : t('profile.recentPerfTitle')}
                         />
                         {recentPerf ? (
                             <View style={styles.card}>
                                 <View style={styles.perfGrid}>
                                     <PerfBlock
-                                        label="KDA"
+                                        label={t('profile.kda')}
                                         value={`${recentPerf.kills} / ${recentPerf.deaths} / ${recentPerf.assists}`}
-                                        sub={`${kdaRatio}:1 ratio`}
+                                        sub={t('profile.kdaRatio', { ratio: kdaRatio })}
                                         highlight
                                     />
                                     <VertDivider tall />
-                                    <PerfBlock label="CS / min" value={String(recentPerf.csPerMin)} sub="creeps" />
+                                    <PerfBlock label={t('profile.csPerMin')} value={String(recentPerf.csPerMin)}
+                                               sub={t('profile.csCreeps')} />
                                     <VertDivider tall />
-                                    <PerfBlock label="Vision" value={String(recentPerf.visionScore)}
-                                               sub="score moyen" />
+                                    <PerfBlock label={t('profile.vision')} value={String(recentPerf.visionScore)}
+                                               sub={t('profile.visionAvg')} />
                                 </View>
                             </View>
                         ) : (
                             <View style={[styles.card, styles.cardEmpty]}>
-                                <Text style={styles.emptyCardText}>Aucune partie classée récente trouvée</Text>
+                                <Text style={styles.emptyCardText}>{t('profile.noPerfRecent')}</Text>
                             </View>
                         )}
                     </>
@@ -282,6 +288,7 @@ function ProfileView({
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function QueueCard({ queue }: { queue: import('@/contexts/summoner').SoloQueueStats }) {
+    const { t } = useTranslation()
     const total = queue.wins + queue.losses
     const winRate = Math.round((queue.wins / total) * 100)
     const rankColor = RANK_COLORS[queue.tier] ?? LoL.gold
@@ -325,15 +332,15 @@ function QueueCard({ queue }: { queue: import('@/contexts/summoner').SoloQueueSt
                 <View style={styles.queueBottom}>
                     <View style={styles.queueBottomStat}>
                         <Text style={[styles.queueStatBig, { color: LoL.win }]}>{queue.wins}</Text>
-                        <Text style={styles.queueStatSmall}>Victoires</Text>
+                        <Text style={styles.queueStatSmall}>{t('profile.wins')}</Text>
                     </View>
                     <View style={styles.queueBottomCenter}>
                         <Text style={[styles.queueWinRateBig, { color: wrColor }]}>{winRate}%</Text>
-                        <Text style={styles.queueStatSmall}>{total} parties</Text>
+                        <Text style={styles.queueStatSmall}>{t('profile.games', { count: total })}</Text>
                     </View>
                     <View style={[styles.queueBottomStat, { alignItems: 'flex-end' }]}>
                         <Text style={[styles.queueStatBig, { color: LoL.loss }]}>{queue.losses}</Text>
-                        <Text style={styles.queueStatSmall}>Défaites</Text>
+                        <Text style={styles.queueStatSmall}>{t('profile.losses')}</Text>
                     </View>
                 </View>
             </View>

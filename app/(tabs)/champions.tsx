@@ -13,6 +13,7 @@ import Collapsible from 'react-native-collapsible';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next'
 
 import { LoL, FontSize, Spacing, Radius } from '@/constants/theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -28,9 +29,9 @@ import { DDragon, championById, formatMastery } from '@/services/ddragon';
 
 type QueueMode = 'solo' | 'flex';
 
-const QUEUES: { id: QueueMode; label: string; queueId: number }[] = [
-  { id: 'solo', label: 'Solo Queue', queueId: 420 },
-  { id: 'flex', label: 'Flex Queue', queueId: 440 },
+const QUEUES: { id: QueueMode; labelKey: string; queueId: number }[] = [
+    { id: 'solo', labelKey: 'champions.soloQueue', queueId: 420 },
+    { id: 'flex', labelKey: 'champions.flexQueue', queueId: 440 },
 ];
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -172,7 +173,7 @@ export default function ChampionsScreen() {
       setStats(statsWithMastery);
       cache.set(cacheKey, { stats: statsWithMastery, ts: Date.now() });
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erreur inconnue');
+        setError(e instanceof Error ? e.message : null)
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -183,16 +184,18 @@ export default function ChampionsScreen() {
 
   // ── No account ──────────────────────────────────────────────────────────────
 
+    const { t } = useTranslation()
+
   if (!storedConfig) {
     return (
       <View style={[styles.centered, { paddingTop: insets.top }]}>
         <IconSymbol name="person.fill" size={56} color={LoL.goldDark} />
-        <Text style={styles.emptyTitle}>Aucun compte configuré</Text>
+          <Text style={styles.emptyTitle}>{t('common.noAccount.title')}</Text>
         <Text style={styles.emptySubtitle}>
-          Renseigne ton Riot ID pour voir tes statistiques
+            {t('common.noAccount.subtitle')}
         </Text>
         <TouchableOpacity style={styles.btn} onPress={() => router.push('/settings')}>
-          <Text style={styles.btnLabel}>CONFIGURER MON COMPTE</Text>
+            <Text style={styles.btnLabel}>{t('common.noAccount.cta')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -209,7 +212,7 @@ export default function ChampionsScreen() {
       <View style={styles.topBar}>
         <View style={styles.headerRow}>
           <View style={styles.headerLine} />
-          <Text style={styles.headerTitle}>CHAMPIONS</Text>
+            <Text style={styles.headerTitle}>{t('champions.header')}</Text>
           <View style={styles.headerLine} />
         </View>
 
@@ -217,7 +220,7 @@ export default function ChampionsScreen() {
           style={styles.dropdownBtn}
           onPress={() => setDropdown(true)}
           activeOpacity={0.8}>
-          <Text style={styles.dropdownBtnText}>{activeQueue.label}</Text>
+            <Text style={styles.dropdownBtnText}>{t(activeQueue.labelKey)}</Text>
           <IconSymbol name="chevron.down" size={14} color={LoL.gold} />
         </TouchableOpacity>
       </View>
@@ -226,14 +229,14 @@ export default function ChampionsScreen() {
       {loading ? (
         <View style={styles.centered}>
           <ActivityIndicator color={LoL.gold} size="large" />
-          <Text style={styles.loadingText}>Analyse des parties…</Text>
+            <Text style={styles.loadingText}>{t('champions.loading')}</Text>
         </View>
       ) : error ? (
         <View style={styles.centered}>
-          <Text style={styles.emptyTitle}>Erreur</Text>
+            <Text style={styles.emptyTitle}>{t('common.error')}</Text>
           <Text style={styles.emptySubtitle}>{error}</Text>
           <TouchableOpacity style={styles.btn} onPress={() => fetchStats(queue)}>
-            <Text style={styles.btnLabel}>RÉESSAYER</Text>
+              <Text style={styles.btnLabel}>{t('common.retry')}</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -251,7 +254,7 @@ export default function ChampionsScreen() {
           ListEmptyComponent={
             <View style={styles.centered}>
               <Text style={styles.emptySubtitle}>
-                Aucune partie classée trouvée sur les 30 dernières
+                  {t('champions.noGames')}
               </Text>
             </View>
           }
@@ -287,7 +290,7 @@ export default function ChampionsScreen() {
                 onPress={() => { setQueue(q.id); setDropdown(false); }}
                 activeOpacity={0.7}>
                 <Text style={[styles.dropdownItemText, q.id === queue && { color: LoL.gold }]}>
-                  {q.label}
+                    {t(q.labelKey)}
                 </Text>
                 {q.id === queue && (
                   <IconSymbol name="checkmark" size={14} color={LoL.gold} />
@@ -305,6 +308,7 @@ export default function ChampionsScreen() {
 // ── Champion card ─────────────────────────────────────────────────────────────
 
 function ChampionCard({ stat: s, rank }: { stat: ChampionStat; rank: number }) {
+    const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false);
 
   const winRate    = Math.round((s.wins / s.games) * 100);
@@ -342,13 +346,13 @@ function ChampionCard({ stat: s, rank }: { stat: ChampionStat; rank: number }) {
           />
           <View style={styles.cardHeaderInfo}>
             <Text style={styles.champName}>{s.displayName}</Text>
-            <Text style={styles.champGames}>{s.games} partie{s.games > 1 ? 's' : ''}</Text>
+              <Text style={styles.champGames}>{t('champions.games', { count: s.games })}</Text>
           </View>
 
           {/* Winrate badge */}
           <View style={[styles.wrBadge, { borderColor: wrColor }]}>
             <Text style={[styles.wrValue, { color: wrColor }]}>{winRate}%</Text>
-            <Text style={styles.wrLabel}>winrate</Text>
+              <Text style={styles.wrLabel}>{t('champions.winrate')}</Text>
           </View>
         </View>
 
@@ -365,7 +369,7 @@ function ChampionCard({ stat: s, rank }: { stat: ChampionStat; rank: number }) {
         {/* ── Collapsible toggle indicator ────────────────────────────── */}
         <View style={styles.collapseToggle}>
           <View style={styles.collapseToggleLine} />
-          <Text style={styles.collapseToggleLabel}>STATS</Text>
+            <Text style={styles.collapseToggleLabel}>{t('champions.stats')}</Text>
           <IconSymbol
             name="chevron.right"
             size={12}
@@ -378,13 +382,15 @@ function ChampionCard({ stat: s, rank }: { stat: ChampionStat; rank: number }) {
         {/* ── Stats grid (collapsible avec animation) ──────────────────── */}
         <Collapsible collapsed={!expanded} align="top" style={{ gap: 8 }}>
           <View style={styles.statsGrid}>
-            <StatCol label="KDA" value={kda} sub={`${avgKills} / ${avgDeaths} / ${avgAssists}`} highlight />
+              <StatCol label={t('champions.kda')} value={kda} sub={`${avgKills} / ${avgDeaths} / ${avgAssists}`}
+                       highlight />
             <View style={styles.gridDivider} />
-            <StatCol label="CS/min" value={csPerMin} sub={`${Math.round(s.cs / s.games)} total`} />
+              <StatCol label={t('champions.csMin')} value={csPerMin}
+                       sub={t('champions.csTotal', { count: Math.round(s.cs / s.games) })} />
             <View style={styles.gridDivider} />
-            <StatCol label="Vision" value={String(avgVision)} sub="moy. / partie" />
+              <StatCol label={t('champions.vision')} value={String(avgVision)} sub={t('champions.visionAvg')} />
             <View style={styles.gridDivider} />
-            <StatCol label="Dégâts" value={fmtDmg(avgDmg)} sub="moy. / partie" />
+              <StatCol label={t('champions.damage')} value={fmtDmg(avgDmg)} sub={t('champions.dmgAvg')} />
           </View>
 
           {/* ── Mastery ───────────────────────────────────────────────── */}
@@ -396,7 +402,7 @@ function ChampionCard({ stat: s, rank }: { stat: ChampionStat; rank: number }) {
                   <Text style={styles.masteryLevelText}>M{s.mastery.championLevel}</Text>
                 </View>
                 <Text style={styles.masteryPoints}>
-                  {formatMastery(s.mastery.championPoints)} points de maîtrise
+                    {formatMastery(s.mastery.championPoints)} {t('champions.masteryPoints')}
                 </Text>
               </View>
             </>

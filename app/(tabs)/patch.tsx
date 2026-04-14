@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next'
+import i18n from '@/i18n'
 
 import { LoL, FontSize, Spacing, Radius } from '@/constants/theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -21,13 +23,14 @@ function toSlug(version: string): string {
   return version.replace('.', '-');
 }
 
-// "26.7" → "Patch 26.7"
+// "26.7" → "Patch 26.7" (translated)
 function toLabel(version: string): string {
-  return `Patch ${version}`;
+  return i18n.t('patch.label', { version })
 }
 
 function patchUrl(version: string): string {
-  return `https://www.leagueoflegends.com/fr-fr/news/game-updates/league-of-legends-patch-${toSlug(version)}-notes/`;
+  const lang = i18n.language === 'fr' ? 'fr-fr' : 'en-gb'
+  return `https://www.leagueoflegends.com/${lang}/news/game-updates/league-of-legends-patch-${toSlug(version)}-notes/`
 }
 
 // Riot releases patches every ~2 weeks starting ~Jan 8 each year.
@@ -62,6 +65,7 @@ function generateVersions(): string[] {
 
 export default function PatchScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation()
 
   const [versions,      setVersions]      = useState<string[]>([]);
   const [selected,      setSelected]      = useState('');
@@ -85,7 +89,7 @@ export default function PatchScreen() {
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <View style={styles.header}>
         <View style={styles.headerLine} />
-        <Text style={styles.headerTitle}>PATCH NOTES</Text>
+        <Text style={styles.headerTitle}>{t('patch.header')}</Text>
         <View style={styles.headerLine} />
       </View>
 
@@ -110,7 +114,7 @@ export default function PatchScreen() {
           renderLoading={() => (
             <View style={styles.webviewLoader}>
               <ActivityIndicator color={LoL.gold} size="large" />
-              <Text style={styles.webviewLoaderText}>Chargement des notes…</Text>
+              <Text style={styles.webviewLoaderText}>{t('patch.loading')}</Text>
             </View>
           )}
         />

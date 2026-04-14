@@ -7,7 +7,9 @@ import {
     Cinzel_700Bold,
     Cinzel_900Black,
 } from '@expo-google-fonts/cinzel'
+import { useTranslation } from 'react-i18next'
 
+import '@/i18n'
 import { SummonerProvider } from '@/contexts/summoner'
 import { HomeConfigProvider } from '@/contexts/home-config'
 import { ToastProvider } from '@/components/toast'
@@ -19,6 +21,7 @@ export const unstable_settings = {
 
 export default function RootLayout() {
     useFonts({ Cinzel_700Bold, Cinzel_900Black })
+    const { t } = useTranslation()
 
   return (
       // Force dark theme — RiftTrack uses the LoL dark palette exclusively
@@ -31,7 +34,7 @@ export default function RootLayout() {
                       <Stack.Screen
                           name="settings"
                           options={{
-                              title: 'Réglages',
+                              title: t('layout.settings'),
                               headerStyle: { backgroundColor: LoL.bg },
                               headerTintColor: LoL.gold,
                               headerTitleStyle: {
@@ -44,7 +47,7 @@ export default function RootLayout() {
                       <Stack.Screen
                           name="match-detail"
                           options={{
-                              title: 'Détail de la partie',
+                              title: t('layout.matchDetail'),
                               headerStyle: { backgroundColor: LoL.bg },
                               headerTintColor: LoL.gold,
                               headerTitleStyle: { color: LoL.goldLight, fontWeight: '700' },

@@ -11,6 +11,7 @@ import {
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next'
 import { setCurrentMatch } from '@/services/match-store';
 
 import { LoL, FontSize, Spacing, Radius } from '@/constants/theme';
@@ -64,14 +65,16 @@ const QUEUE_LABELS: Record<number, string> = {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+import i18n from '@/i18n'
+
 function timeAgo(ts: number): string {
   const diff = Date.now() - ts;
   const days  = Math.floor(diff / 86_400_000);
   const hours = Math.floor(diff / 3_600_000);
   const mins  = Math.floor(diff / 60_000);
-  if (days > 0)  return `${days}j`;
-  if (hours > 0) return `${hours}h`;
-  return `${mins}min`;
+    if (days > 0) return i18n.t('history.daysAgo', { count: days })
+    if (hours > 0) return i18n.t('history.hoursAgo', { count: hours })
+    return i18n.t('history.minsAgo', { count: mins })
 }
 
 function formatDuration(secs: number): string {
@@ -80,11 +83,11 @@ function formatDuration(secs: number): string {
   return `${m}:${s.toString().padStart(2, '0')}`;
 }
 
-function getMultiKill(p: ParticipantDto): { label: string; color: string } | null {
-  if (p.pentaKills  > 0) return { label: 'PENTA KILL',  color: '#FF4655' };
-  if (p.quadraKills > 0) return { label: 'QUADRA KILL', color: LoL.gold   };
-  if (p.tripleKills > 0) return { label: 'TRIPLE KILL', color: LoL.gold   };
-  if (p.doubleKills > 0) return { label: 'DOUBLE KILL', color: LoL.textSecondary };
+function getMultiKill(p: ParticipantDto): { labelKey: string; color: string } | null {
+    if (p.pentaKills > 0) return { labelKey: 'history.multiKill.penta', color: '#FF4655' }
+    if (p.quadraKills > 0) return { labelKey: 'history.multiKill.quadra', color: LoL.gold }
+    if (p.tripleKills > 0) return { labelKey: 'history.multiKill.triple', color: LoL.gold }
+    if (p.doubleKills > 0) return { labelKey: 'history.multiKill.double', color: LoL.textSecondary }
   return null;
 }
 
@@ -161,7 +164,7 @@ export default function HistoryScreen() {
       setEntries(result);
       historyCache.set(cacheKey, { entries: result, version: v, ts: Date.now() });
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erreur inconnue');
+        setError(e instanceof Error ? e.message : null)
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -172,16 +175,18 @@ export default function HistoryScreen() {
 
   // ── No account ──────────────────────────────────────────────────────────────
 
+    const { t } = useTranslation()
+
   if (!storedConfig) {
     return (
       <View style={[styles.centered, { paddingTop: insets.top }]}>
           <IconSymbol name="person.fill" size={56} color={LoL.goldDark} />
-        <Text style={styles.emptyTitle}>Aucun compte configuré</Text>
+          <Text style={styles.emptyTitle}>{t('common.noAccount.title')}</Text>
         <Text style={styles.emptySubtitle}>
-            Renseigne ton Riot ID pour voir tes statistiques
+            {t('common.noAccount.subtitle')}
         </Text>
         <TouchableOpacity style={styles.btn} onPress={() => router.push('/settings')}>
-          <Text style={styles.btnLabel}>CONFIGURER MON COMPTE</Text>
+            <Text style={styles.btnLabel}>{t('common.noAccount.cta')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -193,7 +198,7 @@ export default function HistoryScreen() {
     return (
       <View style={[styles.centered, { paddingTop: insets.top }]}>
         <ActivityIndicator color={LoL.gold} size="large" />
-        <Text style={styles.loadingText}>Chargement de l'historique…</Text>
+          <Text style={styles.loadingText}>{t('history.loading')}</Text>
       </View>
     );
   }
@@ -203,10 +208,10 @@ export default function HistoryScreen() {
   if (error) {
     return (
       <View style={[styles.centered, { paddingTop: insets.top }]}>
-        <Text style={styles.emptyTitle}>Erreur</Text>
+          <Text style={styles.emptyTitle}>{t('common.error')}</Text>
         <Text style={styles.emptySubtitle}>{error}</Text>
         <TouchableOpacity style={styles.btn} onPress={() => fetchHistory()}>
-          <Text style={styles.btnLabel}>RÉESSAYER</Text>
+            <Text style={styles.btnLabel}>{t('common.retry')}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -225,13 +230,13 @@ export default function HistoryScreen() {
       ListHeaderComponent={
         <View style={[styles.listHeader, { paddingTop: insets.top + 8 }]}>
           <View style={styles.headerLine} />
-          <Text style={styles.listTitle}>HISTORIQUE</Text>
+            <Text style={styles.listTitle}>{t('history.header')}</Text>
           <View style={styles.headerLine} />
         </View>
       }
       ListEmptyComponent={
         <View style={styles.centered}>
-          <Text style={styles.emptySubtitle}>Aucune partie trouvée</Text>
+            <Text style={styles.emptySubtitle}>{t('history.noGames')}</Text>
         </View>
       }
       refreshControl={
@@ -252,6 +257,7 @@ export default function HistoryScreen() {
 // ── Match card ─────────────────────────────────────────────────────────────────
 
 function MatchCard({ entry, version }: { entry: MatchEntry; version: string }) {
+    const { t } = useTranslation()
   const { match, participant: p } = entry;
   const win         = p.win;
   const accent      = win ? LoL.win : LoL.loss;
@@ -260,7 +266,7 @@ function MatchCard({ entry, version }: { entry: MatchEntry; version: string }) {
   const csPerMin    = (cs / mins).toFixed(1);
   const kdaRatio    = (p.kills + p.assists) / Math.max(p.deaths, 1);
   const multiKill   = getMultiKill(p);
-  const queueLabel  = QUEUE_LABELS[match.info.queueId] ?? 'Partie';
+    const queueLabel = QUEUE_LABELS[match.info.queueId] ?? t('history.defaultQueue')
   const items       = [p.item0, p.item1, p.item2, p.item3, p.item4, p.item5];
 
   const handlePress = () => {
@@ -303,7 +309,7 @@ function MatchCard({ entry, version }: { entry: MatchEntry; version: string }) {
           </View>
           <View style={styles.headerRight}>
             <View style={[styles.resultBadge, { backgroundColor: accent }]}>
-              <Text style={styles.resultBadgeText}>{win ? 'VICTOIRE' : 'DÉFAITE'}</Text>
+                <Text style={styles.resultBadgeText}>{win ? t('common.win') : t('common.loss')}</Text>
             </View>
             <Text style={styles.timeAgoText}>{timeAgo(match.info.gameEndTimestamp)}</Text>
           </View>
@@ -331,9 +337,9 @@ function MatchCard({ entry, version }: { entry: MatchEntry; version: string }) {
 
           {/* Secondary stats */}
           <View style={styles.secondaryStats}>
-            <MiniStat icon="⚔" label="CS" value={String(cs)} sub={`${csPerMin}/min`} />
-            <MiniStat icon="👁" label="Vision" value={String(p.visionScore)} />
-            <MiniStat icon="💥" label="Dégâts" value={formatDmg(p.totalDamageDealtToChampions)} />
+              <MiniStat icon="⚔" label={t('history.cs')} value={String(cs)} sub={`${csPerMin}/min`} />
+              <MiniStat icon="👁" label={t('history.vision')} value={String(p.visionScore)} />
+              <MiniStat icon="💥" label={t('history.damage')} value={formatDmg(p.totalDamageDealtToChampions)} />
           </View>
         </View>
 
@@ -352,7 +358,7 @@ function MatchCard({ entry, version }: { entry: MatchEntry; version: string }) {
           {multiKill && (
             <View style={[styles.multiKillBadge, { borderColor: multiKill.color }]}>
               <Text style={[styles.multiKillText, { color: multiKill.color }]}>
-                {multiKill.label}
+                  {t(multiKill.labelKey)}
               </Text>
             </View>
           )}

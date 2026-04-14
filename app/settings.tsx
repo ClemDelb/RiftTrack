@@ -14,6 +14,7 @@ import {
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next'
 
 import { LoL, FontSize, Spacing, Radius } from '@/constants/theme';
 import { PLATFORMS, getAccount, getSummoner } from '@/services/riot-api';
@@ -22,6 +23,7 @@ import { useHomeConfig } from '@/contexts/home-config';
 
 export default function SettingsScreen() {
   const insets = useSafeAreaInsets();
+    const { t } = useTranslation()
   const { saveConfig, storedConfig, clearConfig } = useSummoner();
   const { homeConfig, updateHomeConfig } = useHomeConfig();
 
@@ -45,7 +47,7 @@ export default function SettingsScreen() {
     const tagLine = tagParts.join('#');
 
     if (!gameName || !tagLine) {
-      setError('Format invalide — utilise PseudoIngame#TAG');
+        setError(t('settings.formatError'))
       return;
     }
 
@@ -62,7 +64,7 @@ export default function SettingsScreen() {
         summonerLevel: summoner.summonerLevel,
       });
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erreur inconnue');
+        setError(e instanceof Error ? e.message : t('common.errorUnknown'))
     } finally {
       setSearching(false);
     }
@@ -77,7 +79,7 @@ export default function SettingsScreen() {
       await saveConfig(preview);
       router.back();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Erreur lors de la sauvegarde');
+        setError(e instanceof Error ? e.message : t('settings.saveError'))
       setSaving(false);
     }
   };
@@ -94,26 +96,26 @@ export default function SettingsScreen() {
         showsVerticalScrollIndicator={false}>
 
         {/* ── Riot ID input ───────────────────────────────────────────── */}
-        <SectionLabel>VOTRE COMPTE</SectionLabel>
+          <SectionLabel>{t('settings.account')}</SectionLabel>
 
         <View style={styles.inputGroup}>
-          <Text style={styles.inputLabel}>Pseudo · Tag</Text>
+            <Text style={styles.inputLabel}>{t('settings.pseudoTag')}</Text>
           <TextInput
             style={styles.input}
             value={riotId}
             onChangeText={v => { setRiotId(v); setPreview(null); setError(null); }}
-            placeholder="Faker#EUW"
+            placeholder={t('settings.placeholder')}
             placeholderTextColor={LoL.textMuted}
             autoCapitalize="none"
             autoCorrect={false}
             returnKeyType="search"
             onSubmitEditing={handleSearch}
           />
-          <Text style={styles.hint}>Format : PseudoIngame#TAG (ex: Faker#EUW)</Text>
+            <Text style={styles.hint}>{t('settings.formatHint')}</Text>
         </View>
 
         {/* ── Region chips ────────────────────────────────────────────── */}
-        <Text style={[styles.inputLabel, { marginTop: Spacing.lg }]}>Région</Text>
+          <Text style={[styles.inputLabel, { marginTop: Spacing.lg }]}>{t('settings.region')}</Text>
         <View style={styles.chips}>
           {PLATFORMS.map(p => (
             <TouchableOpacity
@@ -134,7 +136,7 @@ export default function SettingsScreen() {
           disabled={searching}>
           {searching
             ? <ActivityIndicator color={LoL.bg} />
-            : <Text style={styles.btnGoldLabel}>RECHERCHER</Text>}
+              : <Text style={styles.btnGoldLabel}>{t('settings.search')}</Text>}
         </TouchableOpacity>
 
         {/* ── Error ───────────────────────────────────────────────────── */}
@@ -147,7 +149,7 @@ export default function SettingsScreen() {
         {/* ── Preview card ─────────────────────────────────────────────── */}
         {preview && (
           <>
-            <SectionLabel style={{ marginTop: Spacing.xl }}>INVOCATEUR TROUVÉ</SectionLabel>
+              <SectionLabel style={{ marginTop: Spacing.xl }}>{t('settings.summonerFound')}</SectionLabel>
             <View style={styles.previewCard}>
               <Image
                 source={{
@@ -161,7 +163,7 @@ export default function SettingsScreen() {
                   {preview.gameName}
                   <Text style={styles.previewTag}>#{preview.tagLine}</Text>
                 </Text>
-                <Text style={styles.previewLevel}>Niveau {preview.summonerLevel}</Text>
+                  <Text style={styles.previewLevel}>{t('settings.level', { level: preview.summonerLevel })}</Text>
                 <Text style={styles.previewRegion}>
                   {PLATFORMS.find(p => p.value === preview.platform)?.label ?? preview.platform}
                 </Text>
@@ -174,39 +176,39 @@ export default function SettingsScreen() {
               disabled={saving}>
               {saving
                 ? <ActivityIndicator color={LoL.bg} />
-                : <Text style={styles.btnGoldLabel}>ENREGISTRER</Text>}
+                  : <Text style={styles.btnGoldLabel}>{t('settings.save')}</Text>}
             </TouchableOpacity>
           </>
         )}
 
         {/* ── Home customization ───────────────────────────────────────── */}
-        <SectionLabel style={{ marginTop: Spacing.xl }}>PERSONNALISER L'ACCUEIL</SectionLabel>
+          <SectionLabel style={{ marginTop: Spacing.xl }}>{t('settings.customizeHome')}</SectionLabel>
 
         <View style={styles.switchGroup}>
           <SwitchRow
-            label="Solo Queue"
-            description="Rang, victoires, défaites et winrate"
+              label={t('settings.soloQueue')}
+              description={t('settings.soloQueueDesc')}
             value={homeConfig.showSoloQueue}
             onValueChange={v => updateHomeConfig({ showSoloQueue: v })}
           />
           <View style={styles.switchDivider} />
           <SwitchRow
-            label="Flex Queue"
-            description="Rang en file flexible 5v5"
+              label={t('settings.flexQueue')}
+              description={t('settings.flexQueueDesc')}
             value={homeConfig.showFlexQueue}
             onValueChange={v => updateHomeConfig({ showFlexQueue: v })}
           />
           <View style={styles.switchDivider} />
           <SwitchRow
-            label="Maîtrise des champions"
-            description="Top 3 champions avec niveau et points"
+              label={t('settings.masteries')}
+              description={t('settings.masteriesDesc')}
             value={homeConfig.showMasteries}
             onValueChange={v => updateHomeConfig({ showMasteries: v })}
           />
           <View style={styles.switchDivider} />
           <SwitchRow
-            label="Performance récente"
-            description="KDA, CS/min et vision sur les 7 dernières parties"
+              label={t('settings.recentPerf')}
+              description={t('settings.recentPerfDesc')}
             value={homeConfig.showRecentPerf}
             onValueChange={v => updateHomeConfig({ showRecentPerf: v })}
           />
@@ -215,7 +217,7 @@ export default function SettingsScreen() {
         {/* ── Clear config ─────────────────────────────────────────────── */}
         {storedConfig && (
           <TouchableOpacity style={styles.btnClear} onPress={clearConfig}>
-            <Text style={styles.btnClearLabel}>Supprimer le compte enregistré</Text>
+              <Text style={styles.btnClearLabel}>{t('settings.deleteAccount')}</Text>
           </TouchableOpacity>
         )}
       </ScrollView>
